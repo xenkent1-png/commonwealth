@@ -740,7 +740,7 @@ body { color: var(--ink); background: #fff; font-size: 15px; }
 
 
 .site-brand { gap: 11px; }
-.commonwealth-mark { display: block; width: 35px; height: 35px; flex: 0 0 35px; filter: drop-shadow(0 5px 12px rgba(0,76,190,.2)); }
+.commonwealth-mark { display: block; width: 35px; height: 35px; flex: 0 0 35px; object-fit: contain; filter: drop-shadow(0 5px 12px rgba(16,40,29,.18)); }
 .commonwealth-wordmark { color: inherit; font-size: 10px; font-weight: 750; letter-spacing: .17em; }
 .footer-brand .commonwealth-mark { width: 36px; height: 36px; flex-basis: 36px; }
 @media (max-width: 640px) {

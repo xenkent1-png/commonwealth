@@ -100,7 +100,7 @@ if (contributionInput && yearsInput && rateInput && contributionTotal && scenari
     updateScenario();
 }
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-const revealTargets = document.querySelectorAll('.product-card, .catalog-card, .portal-card, .portal-panel, .detail-main, .detail-aside, .contact-card, .page-hero > div, .portal-header > div, .auth-card, .home-story-chapter, .home-section-heading, .closing-inner');
+const revealTargets = document.querySelectorAll('.product-card, .theme-card, .catalog-card, .portal-card, .portal-panel, .detail-main, .detail-aside, .contact-card, .page-hero > div, .portal-header > div, .auth-card, .home-hero-copy, .home-hero-stage, .home-story-heading, .home-story-chapter, .home-section-heading, .trust-grid, .calculator-copy, .calculator-card, .steps-grid article, .closing-inner, .theme-index-hero .container-xl, .theme-detail-hero__copy, .theme-detail-hero__image, .theme-detail-main, .theme-detail-aside, .info-facts article, .info-sections article, .empty-catalog, .admin-readiness-strip, .admin-dashboard-section, .admin-metric-card, .investor-toolbar, .investor-list-panel, .investor-detail-panel, .investor-access-panel, .investor-kyc-panel, .investor-audit-panel, .financial-queue__notice, .transaction-detail-grid > .portal-panel');
 if (!motionPreference.matches && 'IntersectionObserver' in window && revealTargets.length > 0) {
     revealTargets.forEach((element, index) => {
         element.dataset.reveal = '';

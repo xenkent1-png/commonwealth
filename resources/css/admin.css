@@ -443,3 +443,29 @@ body.fintechx-site.admin-shell .button-danger:hover { border-color:#813f34; back
 /* Keep the full admin navigation reachable on shorter screens. */
 .admin-nav { flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#435649 transparent; }
 .admin-sidebar__bottom { flex:0 0 auto; }
+
+
+/* Consistent, restrained depth for every admin workspace view. */
+body.fintechx-site.admin-shell .admin-metric-card,
+body.fintechx-site.admin-shell .portal-panel { transform-style:preserve-3d; }
+body.fintechx-site.admin-shell .admin-dashboard-heading h2 { letter-spacing:-.04em; }
+body.fintechx-site.admin-shell .admin-topbar { box-shadow:0 5px 22px rgba(25,52,34,.035); }
+body.fintechx-site.admin-shell .admin-nav__link { position:relative; overflow:hidden; }
+body.fintechx-site.admin-shell .admin-nav__link.is-active { box-shadow:inset 2px 0 #b99a58; }
+body.fintechx-site.admin-shell .investor-list-panel,
+body.fintechx-site.admin-shell .transaction-list-panel { overflow:hidden; }
+body.fintechx-site.admin-shell .investor-table tbody tr,
+body.fintechx-site.admin-shell .admin-transaction-table tbody tr { transition:background-color .16s ease; }
+body.fintechx-site.admin-shell .investor-table tbody tr:hover,
+body.fintechx-site.admin-shell .admin-transaction-table tbody tr:hover { background:#f6f9f5; }
+body.fintechx-site.admin-shell .investor-table td,
+body.fintechx-site.admin-shell .admin-transaction-table td { vertical-align:middle; }
+@media (hover:hover) and (pointer:fine) {
+    body.fintechx-site.admin-shell .admin-metric-card:hover { transform:perspective(1000px) translateY(-3px) rotateX(.35deg); border-color:#b9cdbb; box-shadow:0 15px 30px rgba(34,64,43,.1); }
+    body.fintechx-site.admin-shell .portal-panel:hover { transform:perspective(1300px) translateY(-2px); box-shadow:0 15px 32px rgba(34,64,43,.075); }
+    body.fintechx-site.admin-shell .admin-nav__link:hover { transform:translateX(2px); }
+}
+@media (prefers-reduced-motion:reduce) {
+    body.fintechx-site.admin-shell .admin-metric-card,
+    body.fintechx-site.admin-shell .portal-panel { transform:none !important; }
+}

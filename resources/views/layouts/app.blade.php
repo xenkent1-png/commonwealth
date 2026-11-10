@@ -17,11 +17,11 @@
         <button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav-menu" aria-label="Open navigation"><span></span><span></span><span></span></button>
         <div class="site-nav-menu" id="site-nav-menu">
             <div class="site-nav-links">
-                <a href="{{ route('themes.index') }}">Investment areas</a>
-                <a href="{{ route('opportunities.index') }}">Reviewed offers</a>
-                <a href="{{ route('trust') }}">Trust &amp; status</a>
-                <a href="{{ route('faq') }}">Resources</a>
-                <a href="{{ route('about') }}">Company</a>
+                <a href="{{ route('themes.index') }}" @if (request()->routeIs('themes.*')) aria-current="page" @endif>Investment areas</a>
+                <a href="{{ route('opportunities.index') }}" @if (request()->routeIs('opportunities.*')) aria-current="page" @endif>Reviewed offers</a>
+                <a href="{{ route('trust') }}" @if (request()->routeIs('trust')) aria-current="page" @endif>Trust &amp; status</a>
+                <a href="{{ route('faq') }}" @if (request()->routeIs('faq', 'how-it-works', 'payment-methods', 'risk-disclosure', 'terms', 'privacy', 'aml-kyc')) aria-current="page" @endif>Resources</a>
+                <a href="{{ route('about') }}" @if (request()->routeIs('about')) aria-current="page" @endif>Company</a>
             </div>
             <div class="site-nav-actions">
             @auth
