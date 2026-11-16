@@ -23,7 +23,7 @@ class AuthenticatedSessionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email', 'max:190'],
             'password' => ['required', 'string'],
         ]);
 

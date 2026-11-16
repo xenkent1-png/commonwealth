@@ -71,6 +71,14 @@ class AuthenticationAuthorizationTest extends TestCase
         ]);
     }
 
+    public function test_login_rejects_email_addresses_longer_than_the_users_column_limit(): void
+    {
+        $this->post(route('login.store'), [
+            'email' => str_repeat('a', 180).'@example.test',
+            'password' => 'password',
+        ])->assertSessionHasErrors('email');
+    }
+
     public function test_unverified_administrator_is_redirected_to_email_verification(): void
     {
         $this->seed();

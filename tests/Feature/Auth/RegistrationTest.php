@@ -50,4 +50,20 @@ class RegistrationTest extends TestCase
         $response->assertSessionHasErrors(['terms', 'password']);
         $this->assertDatabaseCount('users', 0);
     }
+
+    public function test_registration_form_preserves_terms_acceptance_and_links_risk_disclosures(): void
+    {
+        $this->from(route('register'))->post(route('register.store'), [
+            'name' => 'Jordan Davis',
+            'email' => 'jordan@example.test',
+            'password' => 'short',
+            'password_confirmation' => 'short',
+            'terms' => '1',
+        ])->assertRedirect(route('register'))->assertSessionHasErrors('password');
+
+        $this->get(route('register'))
+            ->assertOk()
+            ->assertSee('name="terms" value="1" checked', false)
+            ->assertSee('href="'.route('risk-disclosure').'"', false);
+    }
 }
