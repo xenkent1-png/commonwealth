@@ -14,6 +14,7 @@ class RolePermissionSeeder extends Seeder
             'investor' => [
                 'dashboard.view', 'opportunities.view', 'investments.view-own',
                 'deposits.create-own', 'withdrawals.create-own', 'profile.manage-own',
+                'watchlist.manage-own',
             ],
             'administrator' => [
                 'admin.dashboard.view', 'investors.view', 'investors.manage', 'opportunities.manage',

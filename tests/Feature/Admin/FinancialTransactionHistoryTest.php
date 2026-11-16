@@ -17,6 +17,7 @@ class FinancialTransactionHistoryTest extends TestCase
     {
         $this->seed();
         $role = Role::query()->where('slug', 'super_administrator')->firstOrFail();
+        /** @var User $admin */
         $admin = User::factory()->create(['email_verified_at' => now()]);
         $admin->forceFill(['role_id' => $role->id])->save();
         $admin->refresh();
@@ -56,9 +57,46 @@ class FinancialTransactionHistoryTest extends TestCase
     {
         $this->seed();
         $role = Role::query()->where('slug', 'investor')->firstOrFail();
+        /** @var User $investor */
         $investor = User::factory()->create(['email_verified_at' => now()]);
         $investor->forceFill(['role_id' => $role->id])->save();
 
         $this->actingAs($investor)->get(route('admin.transactions.index'))->assertForbidden();
+    }
+
+    public function test_demo_transactions_are_excluded_from_history_and_direct_details(): void
+    {
+        $this->seed();
+        $role = Role::query()->where('slug', 'super_administrator')->firstOrFail();
+        /** @var User $admin */
+        $admin = User::factory()->create(['email_verified_at' => now()]);
+        $admin->forceFill(['role_id' => $role->id])->save();
+        $admin->refresh();
+        $demoInvestorRole = Role::query()->where('slug', 'investor')->firstOrFail();
+        $demoInvestor = User::factory()->create(['is_demo' => true]);
+        $demoInvestor->forceFill(['role_id' => $demoInvestorRole->id])->save();
+        $demoAccount = FinancialAccount::query()->create([
+            'user_id' => $demoInvestor->id,
+            'account_code' => 'demo-investor-ledger-test',
+            'account_type' => 'liability',
+            'currency' => 'USD',
+        ]);
+        $platformAccount = FinancialAccount::query()->create([
+            'account_code' => 'demo-platform-cash-test',
+            'account_type' => 'asset',
+            'currency' => 'USD',
+        ]);
+        $demoTransaction = app(LedgerPostingService::class)->post('DEP-DEMO-ADMIN-001', 'deposit', [
+            ['account_id' => $platformAccount->id, 'direction' => 'debit', 'amount' => '10.00', 'currency' => 'USD'],
+            ['account_id' => $demoAccount->id, 'direction' => 'credit', 'amount' => '10.00', 'currency' => 'USD'],
+        ], description: 'Demo-only transaction');
+
+        $this->actingAs($admin)
+            ->get(route('admin.transactions.index'))
+            ->assertOk()
+            ->assertDontSee('DEP-DEMO-ADMIN-001')
+            ->assertDontSee('Demo-only transaction');
+
+        $this->get(route('admin.transactions.show', $demoTransaction))->assertNotFound();
     }
 }

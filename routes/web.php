@@ -11,6 +11,8 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Investor\DashboardController as InvestorDashboardController;
+use App\Http\Controllers\Investor\MarketController;
+use App\Http\Controllers\Investor\WatchlistController;
 use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\InformationPageController;
@@ -55,6 +57,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/change-password', [PasswordChangeController::class, 'edit'])->name('password.change');
     Route::put('/change-password', [PasswordChangeController::class, 'update'])->name('password.change.update');
+
     Route::get('/verify-email', [EmailVerificationController::class, 'notice'])->name('verification.notice');
     Route::get('/verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
         ->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
@@ -64,6 +67,17 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/investor/dashboard', InvestorDashboardController::class)
         ->middleware(['verified', 'permission:dashboard.view'])->name('investor.dashboard');
+    Route::get('/investor/stocks/{symbol}', [MarketController::class, 'show'])
+        ->where('symbol', '[A-Za-z0-9-]+')
+        ->middleware(['verified', 'permission:dashboard.view'])->name('investor.stocks.show');
+    Route::post('/investor/watchlist', [WatchlistController::class, 'store'])
+        ->middleware(['verified', 'permission:watchlist.manage-own'])->name('investor.watchlist.store');
+    Route::patch('/investor/watchlist/{watchlistItem}', [WatchlistController::class, 'update'])
+        ->whereNumber('watchlistItem')
+        ->middleware(['verified', 'permission:watchlist.manage-own'])->name('investor.watchlist.update');
+    Route::delete('/investor/watchlist/{watchlistItem}', [WatchlistController::class, 'destroy'])
+        ->whereNumber('watchlistItem')
+        ->middleware(['verified', 'permission:watchlist.manage-own'])->name('investor.watchlist.destroy');
     Route::middleware('verified')->prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/', AdminDashboardController::class)
             ->middleware('permission:admin.dashboard.view')->name('dashboard');

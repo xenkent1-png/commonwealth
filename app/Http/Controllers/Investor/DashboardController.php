@@ -5,14 +5,23 @@ namespace App\Http\Controllers\Investor;
 use App\Http\Controllers\Controller;
 use App\Models\FinancialAccount;
 use App\Models\LedgerEntry;
+use App\Support\MarketInstrumentCatalog;
 use Brick\Math\BigDecimal;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(Request $request, MarketInstrumentCatalog $catalog): View
     {
-        $user = request()->user();
+        $user = $request->user();
+        $filters = $request->validate(['q' => ['nullable', 'string', 'max:80']]);
+        $marketQuery = trim($filters['q'] ?? '');
+        $marketInstruments = $catalog->search($marketQuery);
+        $watchlistItems = $user->watchlistItems()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
         $accounts = FinancialAccount::query()
             ->where('user_id', $user->id)
             ->where('status', 'active')
@@ -77,6 +86,10 @@ class DashboardController extends Controller
             'recordCount' => $recordCount,
             'activity' => $activity,
             'activityTrend' => $activityTrend,
+            'marketInstruments' => $marketInstruments,
+            'marketQuery' => $marketQuery,
+            'watchlistItems' => $watchlistItems,
+            'watchlistSymbols' => $watchlistItems->pluck('symbol')->all(),
         ]);
     }
 }

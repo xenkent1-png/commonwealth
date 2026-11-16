@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\FinancialTransaction;
 use Brick\Math\BigDecimal;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -19,7 +20,7 @@ class FinancialTransactionController extends Controller
             'status' => ['nullable', 'string', Rule::in(['pending', 'posted', 'failed', 'reversed'])],
         ]);
 
-        $transactions = FinancialTransaction::query()
+        $transactions = $this->realTransactions()
             ->with(['actor:id,name,email', 'entries.account:id,account_code,account_type,currency'])
             ->when($filters['search'] ?? null, function ($query, string $search): void {
                 $query->where(function ($query) use ($search): void {
@@ -43,13 +44,18 @@ class FinancialTransactionController extends Controller
 
     public function show(FinancialTransaction $transaction): View
     {
-        $transaction->load([
-            'actor:id,name,email',
-            'entries.account:id,account_code,account_type,currency',
-        ]);
+        $transaction = $this->realTransactions()
+            ->with(['actor:id,name,email', 'entries.account:id,account_code,account_type,currency'])
+            ->findOrFail($transaction->getKey());
         $this->formatAmounts($transaction);
 
         return view('admin.transactions.show', compact('transaction'));
+    }
+
+    private function realTransactions(): Builder
+    {
+        return FinancialTransaction::query()
+            ->whereDoesntHave('entries.account.user', fn (Builder $query) => $query->where('is_demo', true));
     }
 
     private function formatAmounts(FinancialTransaction $transaction): void

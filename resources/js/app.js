@@ -174,6 +174,15 @@ if (adminTransactionCanvas) {
         },
     });
 }
+
+document.querySelectorAll('form[data-confirm]').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+        const message = form.getAttribute('data-confirm') || 'Are you sure you want to continue?';
+        if (!window.confirm(message)) {
+            event.preventDefault();
+        }
+    });
+});
 const navToggle = document.querySelector('.site-nav-toggle');
 const navMenu = document.querySelector('#site-nav-menu');
 if (navToggle && navMenu) {
