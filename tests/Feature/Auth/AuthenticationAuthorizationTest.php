@@ -71,6 +71,46 @@ class AuthenticationAuthorizationTest extends TestCase
         ]);
     }
 
+    public function test_dedicated_admin_login_opens_the_admin_dashboard(): void
+    {
+        $this->seed();
+        $administratorRole = Role::query()->where('slug', 'administrator')->firstOrFail();
+        $user = User::factory()->create([
+            'email' => 'dedicated-admin@example.test',
+            'email_verified_at' => now(),
+        ]);
+        $user->forceFill(['role_id' => $administratorRole->id])->save();
+
+        $this->get(route('admin.login'))->assertOk()->assertSee('Authorized access');
+        $this->post(route('admin.login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+            'remember' => '1',
+        ])->assertRedirect(route('admin.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_dedicated_admin_login_rejects_investor_accounts(): void
+    {
+        $this->seed();
+        $investorRole = Role::query()->where('slug', 'investor')->firstOrFail();
+        $user = User::factory()->create([
+            'email' => 'investor-at-admin-login@example.test',
+            'email_verified_at' => now(),
+        ]);
+        $user->forceFill(['role_id' => $investorRole->id])->save();
+
+        $this->post(route('admin.login.store'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ])
+            ->assertRedirect()
+            ->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
     public function test_login_rejects_email_addresses_longer_than_the_users_column_limit(): void
     {
         $this->post(route('login.store'), [

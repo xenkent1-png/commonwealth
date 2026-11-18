@@ -20,7 +20,22 @@ class AuthenticatedSessionController extends Controller
         return view('auth.login');
     }
 
+    public function createAdmin(): View
+    {
+        return view('auth.admin-login');
+    }
+
     public function store(Request $request): RedirectResponse
+    {
+        return $this->authenticate($request, false);
+    }
+
+    public function storeAdmin(Request $request): RedirectResponse
+    {
+        return $this->authenticate($request, true);
+    }
+
+    private function authenticate(Request $request, bool $adminOnly): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => ['required', 'email', 'max:190'],
@@ -44,7 +59,7 @@ class AuthenticatedSessionController extends Controller
             'email' => strtolower($credentials['email']),
             'password' => $credentials['password'],
             'status' => 'active',
-        ], $request->boolean('remember') && ! $isAdministrator)) {
+        ], ! $adminOnly && $request->boolean('remember') && ! $isAdministrator)) {
             RateLimiter::hit($key, 60);
             throw ValidationException::withMessages(['email' => 'The sign-in details could not be verified.']);
         }
@@ -52,9 +67,19 @@ class AuthenticatedSessionController extends Controller
         RateLimiter::clear($key);
         $request->session()->regenerate();
         $user = $request->user();
+        $isAdmin = $user->hasPermission('admin.dashboard.view');
+
+        if ($adminOnly && ! $isAdmin) {
+            Auth::guard('web')->logout();
+            $request->session()->regenerate();
+            RateLimiter::hit($key, 60);
+            throw ValidationException::withMessages([
+                'email' => 'This sign-in is restricted to authorized administrators.',
+            ]);
+        }
+
         $user->forceFill(['last_login_at' => now()])->save();
 
-        $isAdmin = $user->hasPermission('admin.dashboard.view');
         if ($isAdmin) {
             AuditLog::query()->create([
                 'actor_id' => $user->id,
